@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Decimal a Octal</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .contenedor {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .fila {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        h3 {
+            margin: 0;
+            color: white;
+            min-width: 120px;
+            font-weight: bold;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.9);
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 10px rgba(76,175,80,0.3);
+        }
+
+        input[readonly] {
+            background: rgba(255,255,255,0.7);
+            cursor: not-allowed;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 20px auto;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .results-section {
+            margin-top: 20px;
+        }
+
+        .error {
+            color: #ff6b6b;
+            text-align: center;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .nav-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 0 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.active {
+            background: #4CAF50;
+            border-color: #45a049;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Calculadora Decimal a Octal</h1>
+
+    <div class="navigation" style="text-align: center; margin-bottom: 30px;">
+        <a href="/" class="nav-btn">Todas las Conversiones</a>
+        <a href="/binario" class="nav-btn">Solo Binario</a>
+        <a href="/hexadecimal" class="nav-btn">Solo Hexadecimal</a>
+        <a href="/octal" class="nav-btn active">Solo Octal</a>
+    </div>
+
+    <div class="contenedor">
+        <div class="input-section">
+            <div class="fila">
+                <h3>Número Decimal:</h3>
+                <input type="number" id="decimalInput" placeholder="Ingrese un número decimal">
+            </div>
+            <button class="btn" onclick="convertNumber()">Convertir a Octal</button>
+        </div>
+
+        <div class="results-section">
+            <div class="fila">
+                <h3>Octal:</h3>
+                <input type="text" id="octalResult" readonly placeholder="Resultado en octal">
+            </div>
+        </div>
+
+        <div id="errorMessage" class="error"></div>
+    </div>
+
+    <script>
+        async function convertNumber() {
+            const decimalInput = document.getElementById('decimalInput');
+            const octalResult = document.getElementById('octalResult');
+            const errorMessage = document.getElementById('errorMessage');
+
+            // Limpiar mensajes de error previos
+            errorMessage.textContent = '';
+
+            const number = decimalInput.value;
+
+            if (!number || number === '') {
+                errorMessage.textContent = 'Por favor ingrese un número';
+                return;
+            }
+
+            try {
+                const response = await fetch('/convert', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ number: number, type: 'octal' })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    octalResult.value = data.octal;
+                } else {
+                    errorMessage.textContent = data.error;
+                    octalResult.value = '';
+                }
+            } catch (error) {
+                errorMessage.textContent = 'Error de conexión con el servidor';
+                console.error('Error:', error);
+            }
+        }
+
+        // Permitir conversión al presionar Enter
+        document.getElementById('decimalInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                convertNumber();
+            }
+        });
+    </script>
+</body>
+
+</html>
