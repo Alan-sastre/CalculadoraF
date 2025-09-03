@@ -60,4 +60,6 @@ def convertir_numero():
         return jsonify(error_general)
 
 if __name__ == '__main__':
-    app_calculadora.run(debug=True)
+    import os
+    port = int(os.environ.get('PORT', 5000))
+    app_calculadora.run(host='0.0.0.0', port=port, debug=False)
